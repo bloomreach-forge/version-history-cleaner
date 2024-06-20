@@ -30,10 +30,12 @@ import javax.jcr.version.VersionManager;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 
+import com.bloomreach.forge.versionhistory.core.exception.IllegalDocumentException;
+
 /**
  * Document version history cleaner task.
  */
-public class DocumentHistoryCleanerTask extends AbstractContentHistoryTask {
+public class DocumentHistoryCleanerTask extends AbstractDocumentHistoryTask {
 
     /**
      * A day in milliseconds.
@@ -53,33 +55,12 @@ public class DocumentHistoryCleanerTask extends AbstractContentHistoryTask {
     private long maxDays = -1L;
 
     /**
-     * The versionable document variant node. i.e. the preview variant node which keeps the JCR version history.
+     * Task to clean document history revisions.
+     *
+     * {@inheritDoc}
      */
-    private final Node documentNode;
-
-    public DocumentHistoryCleanerTask(final Session session, final Node documentNode) throws RepositoryException {
-        super(session);
-
-        if (documentNode == null) {
-            throw new IllegalArgumentException("document node must be not null.");
-        }
-
-        if (!documentNode.isNodeType("mix:versionable")) {
-            throw new IllegalArgumentException("document node must be of type, mix:versionable.");
-        }
-
-        if (!documentNode.getPath().startsWith("/content/")) {
-            throw new IllegalArgumentException("document node must be under /content/.");
-        }
-
-        if (documentNode.getPrimaryNodeType().getName().startsWith("hst:")
-                || documentNode.getPath().startsWith("/hippo:configuration/")
-                || documentNode.getPath().equals("/hippo:namespaces")
-                || documentNode.getPath().startsWith("/hippo:namespaces/")) {
-            throw new IllegalArgumentException("Not a document node, but a configuration node.");
-        }
-
-        this.documentNode = documentNode;
+    public DocumentHistoryCleanerTask(final Session session, final Node documentNode) throws RepositoryException, IllegalDocumentException {
+        super(session, documentNode);
     }
 
     public long getMaxRevisions() {
@@ -104,6 +85,7 @@ public class DocumentHistoryCleanerTask extends AbstractContentHistoryTask {
             return;
         }
 
+        final Node documentNode = getDocumentNode();
         // gather versions
         final List<Version> versions = new LinkedList<>();
         final VersionManager versionManager = getSession().getWorkspace().getVersionManager();
@@ -117,7 +99,7 @@ public class DocumentHistoryCleanerTask extends AbstractContentHistoryTask {
             }
 
             final String[] labels = versionHistory.getVersionLabels(version);
-            final boolean revisionVariant = (labels.length > 0) ? true : false;
+            final boolean revisionVariant = labels.length > 0;
 
             if (!version.getName().equals("jcr:rootVersion") && !revisionVariant) {
                 versions.add(version);
@@ -134,7 +116,7 @@ public class DocumentHistoryCleanerTask extends AbstractContentHistoryTask {
 
                 if (nowInMillis - created.getTimeInMillis() > maxDaysInMillis) {
                     getLogger().info("Removing old version, '{}' created on {} at {}, of document node at {}: {}",
-                            version.getName(), DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.format(created),
+                            version.getName(), DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.format(created),
                             version.getPath(), documentNode.getPath(), version.getName());
                     versionHistory.removeVersion(version.getName());
                     versionIt.remove();
@@ -150,7 +132,7 @@ public class DocumentHistoryCleanerTask extends AbstractContentHistoryTask {
                 final Version version = versions.remove(0);
                 final Calendar created = version.getCreated();
                 getLogger().info("Removing surplus version, '{}' created on {} at {}, of document node at {}: {}",
-                        version.getName(), DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.format(created),
+                        version.getName(), DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.format(created),
                         version.getPath(), documentNode.getPath(), version.getName());
                 versionHistory.removeVersion(version.getName());
             }

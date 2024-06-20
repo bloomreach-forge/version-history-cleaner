@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 BloomReach, Inc. (https://www.bloomreach.com)
+ *  Copyright 2019-2024 BloomReach, Inc. (https://www.bloomreach.com)
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 package com.bloomreach.forge.versionhistory.core.repository;
 
-import java.util.Map;
-
 import javax.jcr.Credentials;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -30,11 +28,13 @@ import org.onehippo.cms7.event.HippoEvent;
 import org.onehippo.cms7.event.HippoEventConstants;
 import org.onehippo.cms7.services.eventbus.Subscribe;
 import org.onehippo.repository.events.HippoWorkflowEvent;
+import org.onehippo.repository.util.JcrConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bloomreach.forge.versionhistory.core.DocumentHistoryCleanerTask;
 import com.bloomreach.forge.versionhistory.core.DocumentHistoryTruncaterTask;
+import com.bloomreach.forge.versionhistory.core.configuration.CleanerConfiguration;
 
 /**
  * EventBus event listener, which listens to document publication events and invokes {@link DocumentHistoryCleanerTask}
@@ -47,15 +47,11 @@ public class DocumentHistoryCleanerListener {
     private static final Credentials SYSTEM_CREDENTIALS = new SimpleCredentials("system", new char[] {});
 
     private final Session daemonSession;
-    private final DocumentHistoryCleanerConfiguration defaultConfig;
-    private final Map<String, DocumentHistoryCleanerConfiguration> documentTypeConfigs;
+    private final CleanerConfiguration cleanerConfiguration;
 
-    public DocumentHistoryCleanerListener(final Session daemonSession,
-            final DocumentHistoryCleanerConfiguration defaultConfig,
-            final Map<String, DocumentHistoryCleanerConfiguration> documentTypeConfigs) {
+    public DocumentHistoryCleanerListener(final Session daemonSession, final CleanerConfiguration cleanerConfiguration) {
         this.daemonSession = daemonSession;
-        this.defaultConfig = defaultConfig;
-        this.documentTypeConfigs = documentTypeConfigs;
+        this.cleanerConfiguration = cleanerConfiguration;
     }
 
     @Subscribe
@@ -86,10 +82,8 @@ public class DocumentHistoryCleanerListener {
     }
 
     private void cleanUpOldVersions(final String subjectId, final String subjectPath, final String documentType) {
-        final DocumentHistoryCleanerConfiguration docTypeConfig = documentTypeConfigs.get(documentType);
-        final long maxDays = (docTypeConfig != null) ? docTypeConfig.getMaxDays() : defaultConfig.getMaxDays();
-        final long maxRevisions = (docTypeConfig != null) ? docTypeConfig.getMaxRevisions()
-                : defaultConfig.getMaxRevisions();
+        final long maxDays = cleanerConfiguration.getMaxDays(documentType);
+        final long maxRevisions = cleanerConfiguration.getMaxRevisions(documentType);
 
         Session session = null;
 
@@ -121,9 +115,7 @@ public class DocumentHistoryCleanerListener {
     }
 
     private void truncateAllVersions(final String subjectId, final String subjectPath, final String documentType) {
-        final DocumentHistoryCleanerConfiguration docTypeConfig = documentTypeConfigs.get(documentType);
-        final boolean truncateOnDelete = (docTypeConfig != null) ? docTypeConfig.isTruncateOnDelete()
-                : defaultConfig.isTruncateOnDelete();
+        final boolean truncateOnDelete = cleanerConfiguration.isTruncateOnDelete(documentType);
 
         if (!truncateOnDelete) {
             return;
@@ -168,7 +160,7 @@ public class DocumentHistoryCleanerListener {
         for (NodeIterator nodeIt = handle.getNodes(handle.getName()); nodeIt.hasNext();) {
             final Node node = nodeIt.nextNode();
 
-            if (node != null && node.isNodeType(HippoNodeType.NT_DELETED) && node.isNodeType("mix:versionable")) {
+            if (node != null && node.isNodeType(HippoNodeType.NT_DELETED) && node.isNodeType(JcrConstants.MIX_VERSIONABLE)) {
                 return node;
             }
         }

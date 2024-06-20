@@ -1,0 +1,21 @@
+definitions:
+  config:
+    /hippo:configuration/hippo:modules/scheduler/hippo:moduleconfig/version-cleaning/DeletedDocumentsCleaningJob:
+      jcr:primaryType: hipposched:repositoryjob
+      hipposched:attributeNames: [
+        batch.size,
+        batch.delay.millis,
+        minimum.minutes.to.live]
+      hipposched:attributeValues: [
+        '100',
+        '1000',
+        '1440']
+      hipposched:enabled: true
+      hipposched:repositoryJobClass: com.bloomreach.forge.versionhistory.core.jobs.DeletedDocumentsCleaningJob
+      /hipposched:triggers:
+        jcr:primaryType: hipposched:triggers
+        /nightly:
+          jcr:primaryType: hipposched:crontrigger
+          jcr:mixinTypes: ['mix:lockable']
+          hipposched:cronExpression: 0 0 2 * * ?
+          hipposched:enabled: false

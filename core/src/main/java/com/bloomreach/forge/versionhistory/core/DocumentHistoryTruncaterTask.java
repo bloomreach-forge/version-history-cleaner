@@ -28,50 +28,32 @@ import javax.jcr.version.VersionManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
+import com.bloomreach.forge.versionhistory.core.exception.IllegalDocumentException;
+
 /**
  * Document version history truncater task.
  */
-public class DocumentHistoryTruncaterTask extends AbstractContentHistoryTask {
+public class DocumentHistoryTruncaterTask extends AbstractDocumentHistoryTask {
 
     /**
-     * The versionable document variant node. i.e. the preview variant node which keeps the JCR version history.
+     * Task to truncate document history and document node from attic when deleted.
+     *
+     * {@inheritDoc}
      */
-    private final Node documentNode;
-
-    public DocumentHistoryTruncaterTask(final Session session, final Node documentNode) throws RepositoryException {
-        super(session);
-
-        if (documentNode == null) {
-            throw new IllegalArgumentException("document node must be not null.");
-        }
-
-        if (!documentNode.isNodeType("mix:versionable")) {
-            throw new IllegalArgumentException("document node must be of type, mix:versionable.");
-        }
-
-        if (!documentNode.getPath().startsWith("/content/")) {
-            throw new IllegalArgumentException("document node must be under /content/.");
-        }
-
-        if (documentNode.getPrimaryNodeType().getName().startsWith("hst:")
-                || documentNode.getPath().startsWith("/hippo:configuration/")
-                || documentNode.getPath().equals("/hippo:namespaces")
-                || documentNode.getPath().startsWith("/hippo:namespaces/")) {
-            throw new IllegalArgumentException("Not a document node, but a configuration node.");
-        }
-
-        this.documentNode = documentNode;
+    public DocumentHistoryTruncaterTask(final Session session, final Node documentNode) throws RepositoryException, IllegalDocumentException {
+        super(session, documentNode);
     }
 
     @Override
     protected void doExecute() throws RepositoryException {
+        final Node documentNode = getDocumentNode();
         final String documentNodePath = documentNode.getPath();
         final VersionManager versionManager = getSession().getWorkspace().getVersionManager();
         final VersionHistory versionHistory = versionManager.getVersionHistory(documentNodePath);
 
         if (StringUtils.startsWith(documentNodePath, "/content/attic/")) {
             final Node handle = documentNode.getParent();
-            // delete handle node which contains a node referencing a version before truncating versinos.
+            // delete handle node which contains a node referencing a version before truncating versions.
             handle.remove();
             // to remove all the version references in the attic node.
             getSession().save();
@@ -87,7 +69,7 @@ public class DocumentHistoryTruncaterTask extends AbstractContentHistoryTask {
             if (!version.getName().equals("jcr:rootVersion")) {
                 final Calendar created = version.getCreated();
                 getLogger().info("Truncating version, '{}' created on {} at {}, of document node at {}: {}",
-                        version.getName(), DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.format(created),
+                        version.getName(), DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.format(created),
                         version.getPath(), documentNodePath, version.getName());
 
                 versionHistory.removeVersion(version.getName());

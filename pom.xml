@@ -27,7 +27,7 @@
   <description>BloomReach Version History Cleaner</description>
   <groupId>com.bloomreach.forge.version-history-cleaner</groupId>
   <artifactId>version-history-cleaner</artifactId>
-  <version>4.0.2-SNAPSHOT</version>
+  <version>4.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <url>https://github.com/bloomreach-forge/version-history-cleaner</url>
 
@@ -89,7 +89,7 @@
   <issueManagement>
     <url>https://issues.onehippo.com/projects/HIPFORGE</url>
   </issueManagement>
-  
+
   <repositories>
     <repository>
       <id>hippo</id>
@@ -118,6 +118,13 @@
       <dependency>
         <groupId>org.onehippo.cms7</groupId>
         <artifactId>hippo-repository-api</artifactId>
+        <version>${hippo.release.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.onehippo.cms7</groupId>
+        <artifactId>hippo-repository-engine</artifactId>
         <version>${hippo.release.version}</version>
         <scope>provided</scope>
       </dependency>

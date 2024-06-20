@@ -37,6 +37,20 @@
             <i>automatically</i> based on configurations.
             See <a href="config.html">Configuration</a> page for details.
           </li>
+          <li>
+            A scheduler service can be configured to specify jobs that clean up versions periodically. There are different type
+            of cleaning jobs available:
+            <ul>
+              <li><b>Document revisions cleaning job</b>:
+                clean up revisions based on configuration (use similar configuration options as workflow event based cleaning)</li>
+              <li><b>Unpublished documents cleaning job</b>:
+                batch delete unpublished documents (requires custom depublication date property to determine that unpublished
+                documents are outdated and can be deleted)</li>
+              <li><b>Deleted documents cleaning job</b>:
+                batch delete deleted documents from attic and remove all its revisions</li>
+            </ul>
+            See <a href="config.html">Configuration</a> page for details.
+          </li>
         </ul>
 
         <div class="alert alert-info">
@@ -77,6 +91,115 @@ $ mvn clean verify && mvn -Pcargo.run
   versionhistorycleanerdemo:eventsdocument.max.revisions: 2
           ]]></source>
         </div>
+
+      </subsection>
+
+      <subsection name="Enable cleaning jobs">
+        <p>
+          Since version 3.1 the demo project also has some cleaning jobs configured. These jobs are disabled by default,
+          but can simply be enabled by enabling the cron job triggers.
+        </p>
+        <p>
+          The document revisions cleaning job is responsible for deleting revision history of documents using the
+          provided cleaner configuration. It will perform a check for all documents below the provided path in the
+          repository (/content by default, which will also take the attic into account).
+        </p>
+        <div class="brush: plain">
+          <source><![CDATA[
+/hippo:configuration/hippo:modules/scheduler/hippo:moduleconfig/cleaning/DocumentRevisionsCleaningJob:
+  jcr:primaryType: hipposched:repositoryjob
+  hipposched:attributeNames: [
+    batch.size,
+    batch.delay.millis,
+    cleanup.path,
+    default.max.days,
+    default.max.revisions]
+  hipposched:attributeValues: [
+    '100',
+    '1000',
+    /content,
+    '2',
+    '2']
+  hipposched:enabled: true
+  hipposched:repositoryJobClass: com.bloomreach.forge.versionhistory.core.jobs.DocumentRevisionsCleaningJob
+  /hipposched:triggers:
+    jcr:primaryType: hipposched:triggers
+    /nightly:
+      jcr:primaryType: hipposched:crontrigger
+      jcr:mixinTypes: ['mix:lockable']
+      hipposched:cronExpression: 0 0 1 * * ?
+      hipposched:enabled: false
+          ]]></source>
+        </div>
+
+        <p>
+          The deleted documents cleaning job is responsible for cleaning documents and it's revisions from the attic.
+          When deleted documents are deleted for a longer time than the configured minimum.minutes.to.live (comparing to
+          the property hippo:deletedDate) the document is illegible for cleaning (i.e. can be removed from attic and
+          revision information will be deleted).
+        </p>
+        <div class="brush: plain">
+          <source><![CDATA[
+/hippo:configuration/hippo:modules/scheduler/hippo:moduleconfig/cleaning/DeletedDocumentsCleaningJob:
+  jcr:primaryType: hipposched:repositoryjob
+  hipposched:attributeNames: [
+    batch.size,
+    batch.delay.millis,
+    minutes.to.live]
+  hipposched:attributeValues: [
+    '100',
+    '1000',
+    '1440']
+  hipposched:enabled: true
+  hipposched:repositoryJobClass: com.bloomreach.forge.versionhistory.core.jobs.DeletedDocumentsCleaningJob
+  /hipposched:triggers:
+    jcr:primaryType: hipposched:triggers
+    /nightly:
+      jcr:primaryType: hipposched:crontrigger
+      jcr:mixinTypes: ['mix:lockable']
+      hipposched:cronExpression: 0 0 2 * * ?
+      hipposched:enabled: false
+          ]]></source>
+        </div>
+
+        <p>
+          Unpublished documents cleaning job responsible for deleting unpublished documents (i.e. move them to the
+          attic using document workflow). When documents have been unpublished for longer time than the configured
+          minimum.minutes.to.live (comparing to the configured depublicationDateProperty) the document is illegible
+          for deletion.
+          * @param batchSize the amount of items to process in one batch (before a batch delay is applied)
+          * @param batchDelayMillis the delay to wait between batches
+          * @param depublicationDateProperty the depublication date property used to determine if item is allowed to be cleaned
+          *                                 according to the allowed minutes to live ({@link #minimumMinutesToLive})
+          * @param minimumMinutesToLive the minimum amount of minutes before an unpublished item is eligible for cleaning (i.e. can be deleted)
+
+        </p>
+        <div class="brush: plain">
+          <source><![CDATA[
+/hippo:configuration/hippo:modules/scheduler/hippo:moduleconfig/cleaning/UnpublishedDocumentsCleaningJob:
+  jcr:primaryType: hipposched:repositoryjob
+  hipposched:attributeNames: [
+    batch.size,
+    batch.delay.millis,
+    minutes.to.live,
+    depublication.date.property.name]
+  hipposched:attributeValues: [
+    '100',
+    '1000',
+    '10',
+    'versionhistorycleanerdemo:depublicationDate']
+  hipposched:enabled: true
+  hipposched:repositoryJobClass: com.bloomreach.forge.versionhistory.core.jobs.UnpublishedDocumentsCleaningJob
+  /hipposched:triggers:
+    jcr:primaryType: hipposched:triggers
+    /nightly:
+      jcr:primaryType: hipposched:crontrigger
+      jcr:mixinTypes: ['mix:lockable']
+      hipposched:cronExpression: 0 0 3 * * ?
+      hipposched:enabled: false
+          ]]></source>
+        </div>
+
       </subsection>
 
       <subsection name="Demo Scenario: Managed Document Versions by Publication">

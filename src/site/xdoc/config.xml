@@ -3,7 +3,7 @@
   "-//Apache Software Foundation//DTD XDOC 1.0//EN"
   "http://maven.apache.org/dtd/xdoc_1_0.dtd">
 <!--
-  Copyright 2019 BloomReach, Inc. (https://www.bloomreach.com)
+  Copyright 2019-2024 BloomReach, Inc. (https://www.bloomreach.com)
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -125,6 +125,324 @@
               is deleted.
             </td>
             <td>false</td>
+          </tr>
+        </table>
+
+      </subsection>
+
+      <subsection name="Scheduled Cleaning Job Configuration Options">
+        <p>
+          BloomReach Version History Cleaner scheduled jobs can be added to the repository scheduler which is located and configured underneath
+          <code>/hippo:configuration/hippo:modules/scheduler/hippo:moduleconfig</code>. The jobs can be configured in its own job
+          group like the following:
+        </p>
+
+        <div class="brush: plain">
+          <source><![CDATA[
+/version-cleaning:
+  jcr:primaryType: hipposched:jobgroup
+          ]]></source>
+        </div>
+
+        <p>
+          The following jobs are available.
+          <ul>
+            <li>Document Revisions Cleaning</li>
+            <li>Deleted Documents Cleaning</li>
+            <li>Unpublished Documents Cleaning</li>
+          </ul>
+        </p>
+
+        <p>
+          For some generic information about the configuration options of the repository scheduler see the
+          <a href="https://xmdocumentation.bloomreach.com/library/concepts/services/repository-scheduler.html">Repository scheduler documentation page</a>
+          section "Configure Jobs Manually".
+          <br />
+          More info on the <a href="https://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html">Quartz cron trigger</a>.
+        </p>
+
+      </subsection>
+
+
+      <subsection name="Scheduled Cleaning Job: Document Revisions Cleaning">
+        <p>
+          The Document Revisions Cleaning scheduled job can be added to the repository scheduler revision cleaning job
+          group (for example underneath <code>/hippo:configuration/hippo:modules/scheduler/hippo:moduleconfig/revision-cleaning</code>).
+          The jobs can be configured like the following:
+        </p>
+
+        <div class="brush: plain">
+          <source><![CDATA[
+/DocumentRevisionsCleaningJob:
+  jcr:primaryType: hipposched:repositoryjob
+  hipposched:attributeNames: [
+    batch.size,
+    batch.delay.millis,
+    cleanup.path,
+    default.max.days,
+    default.max.revisions]
+  hipposched:attributeValues: [
+    '100',
+    '1000',
+    /content,
+    '2',
+    '2']
+  hipposched:enabled: true
+  hipposched:repositoryJobClass: com.bloomreach.forge.versionhistory.core.jobs.DocumentRevisionsCleaningJob
+  /hipposched:triggers:
+    jcr:primaryType: hipposched:triggers
+    /nightly:
+      jcr:primaryType: hipposched:crontrigger
+      jcr:mixinTypes: ['mix:lockable']
+      hipposched:cronExpression: 0 0 1 * * ?
+      hipposched:enabled: false
+          ]]></source>
+        </div>
+
+        <p>The following configurations are supported.</p>
+
+        <table>
+          <tr>
+            <th>Property Name</th>
+            <th>Description</th>
+            <th>Default value</th>
+          </tr>
+          <tr>
+            <td>batch.size</td>
+            <td>
+              The amount of items to process in one batch (before a batch delay is applied).
+              <br/>
+              If this is set to zero or a negative integer, then this option is ignored.
+            </td>
+            <td>100</td>
+          </tr>
+          <tr>
+            <td>batch.delay.millis</td>
+            <td>
+              The delay to wait between batches in milliseconds.
+              <br/>
+              If this is set to zero or a negative integer, then this option is ignored.
+            </td>
+            <td>1000</td>
+          </tr>
+          <tr>
+            <td>cleanup.path</td>
+            <td>
+              The base path to delete the items from. Only items below that path are taken into account
+              <br/>
+              If this is set to empty it will use the default /content path and therefore delete items from both
+              documents as the attic.
+            </td>
+            <td>/content</td>
+          </tr>
+          <tr>
+            <td>default.max.days</td>
+            <td>
+              The default maximum days to retain a version since its creation date time.
+              For example, if a version was created 10 days ago, and if this property is set to <code>7</code> (days),
+              then the version will be removed automatically when the document is published.
+              <br/>
+              If this is set to a negative integer, then this option is ignored.
+            </td>
+            <td>-1</td>
+          </tr>
+          <tr>
+            <td>default.max.revisions</td>
+            <td>
+              The default maximum version count to retain for the document.
+              For example, if there are 10 versions for the document, and if this property is set to <code>5</code>,
+              then the 5 older versions will be removed automatically when the document is published, keeping the
+              5 newer versions.
+              <br/>
+              If this is set to a negative integer, then this option is ignored.
+            </td>
+            <td>-1</td>
+          </tr>
+        </table>
+
+        <p>
+          You can also override the configurations for specific document types.
+          For example, if you want to use different settings for <code>myproject:newsdocument</code>, then
+          just add all the overriding properties with prefixing them by the document type name instead of "<code>default</code>".
+          Here's an overriding example for <code>myproject:newsdocument</code> document type:
+        </p>
+
+        <table>
+          <tr>
+            <th>Property Name</th>
+            <th>Description</th>
+            <th>Default value</th>
+          </tr>
+          <tr>
+            <td>myproject:newsdocument.max.days</td>
+            <td>
+              The document type (<code>myproject:newsdocument</code>) specific configuration to override <code>default.max.days</code>.
+              <br/>
+              If this is set to a negative integer, then this option is ignored.
+            </td>
+            <td>-1</td>
+          </tr>
+          <tr>
+            <td>myproject:newsdocument.max.revisions</td>
+            <td>
+              The document type (<code>myproject:newsdocument</code>) specific configuration to override <code>default.max.revisions</code>.
+              <br/>
+              If this is set to a negative integer, then this option is ignored.
+            </td>
+            <td>-1</td>
+          </tr>
+        </table>
+
+      </subsection>
+
+      <subsection name="Scheduled Cleaning Job: Deleted Documents Cleaning">
+        <p>
+          The Deleted Document Cleaning scheduled job can be added to the repository scheduler revision cleaning job
+          group (for example underneath <code>/hippo:configuration/hippo:modules/scheduler/hippo:moduleconfig/revision-cleaning</code>).
+          The jobs can be configured like the following:
+        </p>
+
+        <div class="brush: plain">
+          <source><![CDATA[
+/DeletedDocumentsCleaningJob:
+  jcr:primaryType: hipposched:repositoryjob
+  hipposched:attributeNames: [
+    batch.size,
+    batch.delay.millis,
+    minimum.minutes.to.live]
+  hipposched:attributeValues: [
+    '100',
+    '1000',
+    '1440']
+  hipposched:enabled: true
+  hipposched:repositoryJobClass: com.bloomreach.forge.versionhistory.core.jobs.DeletedDocumentsCleaningJob
+  /hipposched:triggers:
+    jcr:primaryType: hipposched:triggers
+    /nightly:
+      jcr:primaryType: hipposched:crontrigger
+      jcr:mixinTypes: ['mix:lockable']
+      hipposched:cronExpression: 0 0 2 * * ?
+      hipposched:enabled: false
+          ]]></source>
+        </div>
+
+        <p>The following configurations are supported.</p>
+
+        <table>
+          <tr>
+            <th>Property Name</th>
+            <th>Description</th>
+            <th>Default value</th>
+          </tr>
+          <tr>
+            <td>batch.size</td>
+            <td>
+              The amount of items to process in one batch (before a batch delay is applied).
+              <br/>
+              If this is set to zero or a negative integer, then this option is ignored.
+            </td>
+            <td>100</td>
+          </tr>
+          <tr>
+            <td>batch.delay.millis</td>
+            <td>
+              The delay to wait between batches in milliseconds.
+              <br/>
+              If this is set to zero or a negative integer, then this option is ignored.
+            </td>
+            <td>1000</td>
+          </tr>
+          <tr>
+            <td>minimum.minutes.to.live</td>
+            <td>
+              The minimum amount of minutes before a deleted item is eligible for cleaning (i.e. can be removed from
+              the attic and revision information will be deleted).
+              <br/>
+              If this is set to zero or a negative integer, then this option is ignored.
+            </td>
+            <td>525.600</td>
+          </tr>
+        </table>
+
+      </subsection>
+
+      <subsection name="Scheduled Cleaning Job: Unpublished Documents Cleaning">
+
+        <p>
+          The Unpublished Documents Cleaning scheduled job can be added to the repository scheduler revision cleaning job
+          group (for example underneath <code>/hippo:configuration/hippo:modules/scheduler/hippo:moduleconfig/revision-cleaning</code>).
+          The jobs can be configured like the following:
+        </p>
+
+        <div class="brush: plain">
+          <source><![CDATA[
+/UnpublishedDocumentsCleaningJob:
+  jcr:primaryType: hipposched:repositoryjob
+  hipposched:attributeNames: [
+    batch.size,
+    batch.delay.millis,
+    minimum.minutes.to.live,
+    depublication.date.property.name]
+  hipposched:attributeValues: [
+    '100',
+    '1000',
+    '10',
+    'versionhistorycleanerdemo:depublicationDate']
+  hipposched:enabled: true
+  hipposched:repositoryJobClass: com.bloomreach.forge.versionhistory.core.jobs.UnpublishedDocumentsCleaningJob
+  /hipposched:triggers:
+    jcr:primaryType: hipposched:triggers
+    /nightly:
+      jcr:primaryType: hipposched:crontrigger
+      jcr:mixinTypes: ['mix:lockable']
+      hipposched:cronExpression: 0 0 3 * * ?
+      hipposched:enabled: false
+          ]]></source>
+        </div>
+
+        <p>The following configurations are supported.</p>
+
+        <table>
+          <tr>
+            <th>Property Name</th>
+            <th>Description</th>
+            <th>Default value</th>
+          </tr>
+          <tr>
+            <td>batch.size</td>
+            <td>
+              The amount of items to process in one batch (before a batch delay is applied).
+              <br/>
+              If this is set to zero or a negative integer, then this option is ignored.
+            </td>
+            <td>100</td>
+          </tr>
+          <tr>
+            <td>batch.delay.millis</td>
+            <td>
+              The delay to wait between batches in milliseconds.
+              <br/>
+              If this is set to zero or a negative integer, then this option is ignored.
+            </td>
+            <td>1000</td>
+          </tr>
+          <tr>
+            <td>depublication.date.property.name</td>
+            <td>
+              The depublication date property used to determine if item is allowed to be cleaned. This property will be
+              used to check for the minimum amount of minutes to live ({@link #minimumMinutesToLive}).
+            </td>
+            <td>hippostdpubwf:depublicationDate</td>
+          </tr>
+          <tr>
+            <td>minimum.minutes.to.live</td>
+            <td>
+              The minimum amount of minutes before a deleted item is eligible for cleaning (i.e. can be removed from
+              the attic and revision information will be deleted).
+              <br/>
+              If this is set to zero or a negative integer, then this option is ignored.
+            </td>
+            <td>525.600</td>
           </tr>
         </table>
 

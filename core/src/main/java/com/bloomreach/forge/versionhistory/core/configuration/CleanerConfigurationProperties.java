@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 BloomReach, Inc. (https://www.bloomreach.com)
+ *  Copyright 2019-2024 BloomReach, Inc. (https://www.bloomreach.com)
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,12 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.bloomreach.forge.versionhistory.core.repository;
+package com.bloomreach.forge.versionhistory.core.configuration;
 
 /**
  * Configuration for Document History Cleaner task.
  */
-public class DocumentHistoryCleanerConfiguration {
+public class CleanerConfigurationProperties {
 
     /**
      * Max revisions to keep in the version history.
@@ -37,7 +37,7 @@ public class DocumentHistoryCleanerConfiguration {
      */
     private boolean truncateOnDelete;
 
-    public DocumentHistoryCleanerConfiguration() {
+    public CleanerConfigurationProperties() {
     }
 
     public long getMaxDays() {
