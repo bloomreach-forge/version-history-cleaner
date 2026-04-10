@@ -1,0 +1,25 @@
+definitions:
+  config:
+    /hippo:configuration/hippo:modules/scheduler/hippo:moduleconfig/version-cleaning/DocumentRevisionsCleaningJob:
+      jcr:primaryType: hipposched:repositoryjob
+      hipposched:attributeNames: [
+        batch.size,
+        batch.delay.millis,
+        cleanup.path,
+        default.max.days,
+        default.max.revisions]
+      hipposched:attributeValues: [
+        '100',
+        '1000',
+        /content,
+        '2',
+        '2']
+      hipposched:enabled: true
+      hipposched:repositoryJobClass: com.bloomreach.forge.versionhistory.core.jobs.DocumentRevisionsCleaningJob
+      /hipposched:triggers:
+        jcr:primaryType: hipposched:triggers
+        /nightly:
+          jcr:primaryType: hipposched:crontrigger
+          jcr:mixinTypes: ['mix:lockable']
+          hipposched:cronExpression: 0 0 1 * * ?
+          hipposched:enabled: false

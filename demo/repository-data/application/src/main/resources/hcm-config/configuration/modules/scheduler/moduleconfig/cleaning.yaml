@@ -1,0 +1,4 @@
+definitions:
+  config:
+    /hippo:configuration/hippo:modules/scheduler/hippo:moduleconfig/version-cleaning:
+      jcr:primaryType: hipposched:jobgroup

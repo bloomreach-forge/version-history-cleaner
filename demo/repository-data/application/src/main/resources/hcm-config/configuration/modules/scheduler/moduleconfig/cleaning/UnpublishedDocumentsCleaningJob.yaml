@@ -1,0 +1,23 @@
+definitions:
+  config:
+    /hippo:configuration/hippo:modules/scheduler/hippo:moduleconfig/version-cleaning/UnpublishedDocumentsCleaningJob:
+      jcr:primaryType: hipposched:repositoryjob
+      hipposched:attributeNames: [
+        batch.size,
+        batch.delay.millis,
+        minimum.minutes.to.live,
+        depublication.date.property.name]
+      hipposched:attributeValues: [
+        '100',
+        '1000',
+        '10',
+        'versionhistorycleanerdemo:depublicationDate']
+      hipposched:enabled: true
+      hipposched:repositoryJobClass: com.bloomreach.forge.versionhistory.core.jobs.UnpublishedDocumentsCleaningJob
+      /hipposched:triggers:
+        jcr:primaryType: hipposched:triggers
+        /nightly:
+          jcr:primaryType: hipposched:crontrigger
+          jcr:mixinTypes: ['mix:lockable']
+          hipposched:cronExpression: 0 0 3 * * ?
+          hipposched:enabled: false

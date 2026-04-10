@@ -20,8 +20,7 @@
   <parent>
     <groupId>com.bloomreach.forge.version-history-cleaner</groupId>
     <artifactId>version-history-cleaner</artifactId>
-    <version>4.0.2-SNAPSHOT</version>
-
+    <version>4.1.0-SNAPSHOT</version>
   </parent>
 
   <name>BloomReach Version History Cleaner Core</name>
@@ -39,6 +38,12 @@
     <dependency>
       <groupId>org.onehippo.cms7</groupId>
       <artifactId>hippo-repository-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.onehippo.cms7</groupId>
+      <artifactId>hippo-repository-engine</artifactId>
       <scope>provided</scope>
     </dependency>
 

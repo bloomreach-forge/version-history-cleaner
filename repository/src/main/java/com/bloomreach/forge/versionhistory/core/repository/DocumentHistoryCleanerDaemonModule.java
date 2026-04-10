@@ -1,5 +1,5 @@
 /*
- *  Copyright 2019 BloomReach, Inc. (https://www.bloomreach.com)
+ *  Copyright 2019-2024 BloomReach, Inc. (https://www.bloomreach.com)
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.bloomreach.forge.versionhistory.core.repository;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
@@ -30,27 +29,32 @@ import org.hippoecm.repository.util.JcrUtils;
 import org.onehippo.cms7.services.eventbus.HippoEventListenerRegistry;
 import org.onehippo.repository.modules.AbstractReconfigurableDaemonModule;
 
+import com.bloomreach.forge.versionhistory.core.configuration.CleanerConfiguration;
+import com.bloomreach.forge.versionhistory.core.configuration.CleanerConfigurationConstants;
+import com.bloomreach.forge.versionhistory.core.configuration.CleanerConfigurationProperties;
+
 /**
  * Document History Cleaner Daemon Module.
  */
 public class DocumentHistoryCleanerDaemonModule extends AbstractReconfigurableDaemonModule {
 
-    private static final Pattern DOCTYPE_PREFIXED_PROP_NAME_PATTERN = Pattern
-            .compile("^([A-Za-z_\\-]+:[A-Za-z_\\-]+)\\.(.+)$");
-
-    private DocumentHistoryCleanerConfiguration defaultConfig = new DocumentHistoryCleanerConfiguration();
-    private Map<String, DocumentHistoryCleanerConfiguration> documentTypeConfigs = new HashMap<>();
+    private CleanerConfiguration cleanerConfiguration = CleanerConfiguration.EMPTY;
     private DocumentHistoryCleanerListener documentHistoryCleanerListener;
 
     @Override
     protected void doConfigure(final Node moduleConfig) throws RepositoryException {
-        defaultConfig.setMaxDays(JcrUtils.getLongProperty(moduleConfig, "default.max.days", -1L));
-        defaultConfig.setMaxRevisions(JcrUtils.getLongProperty(moduleConfig, "default.max.revisions", -1L));
-        defaultConfig.setTruncateOnDelete(JcrUtils.getBooleanProperty(moduleConfig, "default.truncate.ondelete", false));
+        cleanerConfiguration = readConfiguration(moduleConfig);
+    }
 
-        documentTypeConfigs.clear();
+    private CleanerConfiguration readConfiguration(final Node moduleConfig) throws RepositoryException {
+        final CleanerConfigurationProperties defaultConfig = new CleanerConfigurationProperties();
+        defaultConfig.setMaxDays(JcrUtils.getLongProperty(moduleConfig, CleanerConfigurationConstants.DEFAULT_MAX_DAYS, -1L));
+        defaultConfig.setMaxRevisions(JcrUtils.getLongProperty(moduleConfig, CleanerConfigurationConstants.DEFAULT_MAX_REVISIONS, -1L));
+        defaultConfig.setTruncateOnDelete(JcrUtils.getBooleanProperty(moduleConfig, CleanerConfigurationConstants.DEFAULT_TRUNCATE_ONDELETE, false));
 
-        for (PropertyIterator propIt = moduleConfig.getProperties(); propIt.hasNext();) {
+        final Map<String, CleanerConfigurationProperties> documentTypeConfigs = new HashMap<>();
+
+        for (final PropertyIterator propIt = moduleConfig.getProperties(); propIt.hasNext(); ) {
             final Property prop = propIt.nextProperty();
 
             if (prop == null) {
@@ -58,14 +62,14 @@ public class DocumentHistoryCleanerDaemonModule extends AbstractReconfigurableDa
             }
 
             final String propName = prop.getName();
-            final Matcher matcher = DOCTYPE_PREFIXED_PROP_NAME_PATTERN.matcher(propName);
+            final Matcher matcher = CleanerConfigurationConstants.DOCTYPE_PREFIXED_PROP_NAME_PATTERN.matcher(propName);
 
             if (matcher.matches()) {
                 final String docTypeName = matcher.group(1);
-                DocumentHistoryCleanerConfiguration documentTypeConfig = documentTypeConfigs.get(docTypeName);
+                CleanerConfigurationProperties documentTypeConfig = documentTypeConfigs.get(docTypeName);
 
                 if (documentTypeConfig == null) {
-                    documentTypeConfig = new DocumentHistoryCleanerConfiguration();
+                    documentTypeConfig = new CleanerConfigurationProperties();
                     documentTypeConfig.setMaxDays(defaultConfig.getMaxDays());
                     documentTypeConfig.setMaxRevisions(defaultConfig.getMaxRevisions());
                     documentTypeConfig.setTruncateOnDelete(defaultConfig.isTruncateOnDelete());
@@ -74,21 +78,21 @@ public class DocumentHistoryCleanerDaemonModule extends AbstractReconfigurableDa
 
                 final String configPropName = matcher.group(2);
 
-                if ("max.days".equals(configPropName)) {
+                if (CleanerConfigurationConstants.MAX_DAYS.equals(configPropName)) {
                     documentTypeConfig.setMaxDays(prop.getLong());
-                } else if ("max.revisions".equals(configPropName)) {
+                } else if (CleanerConfigurationConstants.MAX_REVISIONS.equals(configPropName)) {
                     documentTypeConfig.setMaxRevisions(prop.getLong());
-                } else if ("truncate.ondelete".equals(configPropName)) {
+                } else if (CleanerConfigurationConstants.TRUNCATE_ONDELETE.equals(configPropName)) {
                     documentTypeConfig.setTruncateOnDelete(prop.getBoolean());
                 }
             }
         }
+        return new CleanerConfiguration(defaultConfig, documentTypeConfigs);
     }
 
     @Override
     protected void doInitialize(final Session daemonSession) throws RepositoryException {
-        documentHistoryCleanerListener = new DocumentHistoryCleanerListener(daemonSession, defaultConfig,
-                documentTypeConfigs);
+        documentHistoryCleanerListener = new DocumentHistoryCleanerListener(daemonSession, cleanerConfiguration);
         HippoEventListenerRegistry.get().register(documentHistoryCleanerListener);
     }
 
@@ -99,4 +103,5 @@ public class DocumentHistoryCleanerDaemonModule extends AbstractReconfigurableDa
             documentHistoryCleanerListener = null;
         }
     }
+
 }
