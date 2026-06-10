@@ -29,11 +29,15 @@ import javax.jcr.Session;
 import org.hippoecm.repository.util.JcrUtils;
 import org.onehippo.cms7.services.eventbus.HippoEventListenerRegistry;
 import org.onehippo.repository.modules.AbstractReconfigurableDaemonModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Document History Cleaner Daemon Module.
  */
 public class DocumentHistoryCleanerDaemonModule extends AbstractReconfigurableDaemonModule {
+
+    private static final Logger log = LoggerFactory.getLogger(DocumentHistoryCleanerDaemonModule.class);
 
     private static final Pattern DOCTYPE_PREFIXED_PROP_NAME_PATTERN = Pattern
             .compile("^([A-Za-z_\\-]+:[A-Za-z_\\-]+)\\.(.+)$");
@@ -83,6 +87,10 @@ public class DocumentHistoryCleanerDaemonModule extends AbstractReconfigurableDa
                 }
             }
         }
+
+        log.debug("DocumentHistoryCleanerDaemonModule configured: default=[maxDays={}, maxRevisions={}, truncateOnDelete={}], docTypeOverrides={}",
+                defaultConfig.getMaxDays(), defaultConfig.getMaxRevisions(), defaultConfig.isTruncateOnDelete(),
+                documentTypeConfigs.keySet());
     }
 
     @Override
@@ -90,6 +98,7 @@ public class DocumentHistoryCleanerDaemonModule extends AbstractReconfigurableDa
         documentHistoryCleanerListener = new DocumentHistoryCleanerListener(daemonSession, defaultConfig,
                 documentTypeConfigs);
         HippoEventListenerRegistry.get().register(documentHistoryCleanerListener);
+        log.info("DocumentHistoryCleanerDaemonModule initialized and listener registered.");
     }
 
     @Override
@@ -98,5 +107,6 @@ public class DocumentHistoryCleanerDaemonModule extends AbstractReconfigurableDa
             HippoEventListenerRegistry.get().unregister(documentHistoryCleanerListener);
             documentHistoryCleanerListener = null;
         }
+        log.info("DocumentHistoryCleanerDaemonModule shut down.");
     }
 }

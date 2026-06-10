@@ -79,8 +79,10 @@ public class DocumentHistoryCleanerListener {
         final String subjectPath = wfEvent.subjectPath();
 
         if ("publish".equals(action)) {
+            log.debug("Received publish event for document '{}' (type={}, id={}); checking version history.", subjectPath, documentType, subjectId);
             cleanUpOldVersions(subjectId, subjectPath, documentType);
         } else if ("delete".equals(action)) {
+            log.debug("Received delete event for document '{}' (type={}, id={}); truncating version history.", subjectPath, documentType, subjectId);
             truncateAllVersions(subjectId, subjectPath, documentType);
         }
     }
@@ -90,6 +92,9 @@ public class DocumentHistoryCleanerListener {
         final long maxDays = (docTypeConfig != null) ? docTypeConfig.getMaxDays() : defaultConfig.getMaxDays();
         final long maxRevisions = (docTypeConfig != null) ? docTypeConfig.getMaxRevisions()
                 : defaultConfig.getMaxRevisions();
+
+        log.debug("Cleaning version history for '{}': maxRevisions={}, maxDays={} (docTypeConfig={})",
+                subjectPath, maxRevisions, maxDays, docTypeConfig != null ? documentType : "default");
 
         Session session = null;
 
@@ -126,8 +131,11 @@ public class DocumentHistoryCleanerListener {
                 : defaultConfig.isTruncateOnDelete();
 
         if (!truncateOnDelete) {
+            log.debug("Skipping version history truncation for '{}': truncateOnDelete=false.", subjectPath);
             return;
         }
+
+        log.debug("Truncating all versions for deleted document '{}' (type={}).", subjectPath, documentType);
 
         Session session = null;
 

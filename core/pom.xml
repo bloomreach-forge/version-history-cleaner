@@ -20,7 +20,7 @@
   <parent>
     <groupId>com.bloomreach.forge.version-history-cleaner</groupId>
     <artifactId>version-history-cleaner</artifactId>
-    <version>4.0.2-SNAPSHOT</version>
+    <version>5.0.0-SNAPSHOT</version>
 
   </parent>
 
@@ -74,7 +74,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
+      <artifactId>log4j-slf4j2-impl</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
