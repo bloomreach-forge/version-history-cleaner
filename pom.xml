@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2019-2024 BloomReach, Inc. (https://www.bloomreach.com)
+  Copyright 2026 BloomReach, Inc. (https://www.bloomreach.com)
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.onehippo.cms7</groupId>
     <artifactId>hippo-cms7-project</artifactId>
-    <version>17.0.0</version>
+    <version>17.1.1</version>
   </parent>
 
   <name>BloomReach Version History Cleaner</name>
@@ -32,13 +32,9 @@
   <url>https://github.com/bloomreach-forge/version-history-cleaner</url>
 
   <properties>
-
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.build.javaVersion>21</project.build.javaVersion>
 
-    <maven.plugin.jxr.version>3.4.0</maven.plugin.jxr.version>
-
+    <maven.plugin.jxr.version>3.6.0</maven.plugin.jxr.version>
   </properties>
 
   <licenses>
@@ -85,12 +81,12 @@
   
   <repositories>
     <repository>
-      <id>hippo</id>
+      <id>bloomreach</id>
       <name>Hippo Maven 2 Repository</name>
       <url>https://maven.bloomreach.com/maven2/</url>
     </repository>
     <repository>
-      <id>hippo-maven2-forge</id>
+      <id>bloomreach-maven2-forge</id>
       <name>Hippo Maven 2 Forge Repository</name>
       <url>https://maven.bloomreach.com/maven2-forge/</url>
       <snapshots />
