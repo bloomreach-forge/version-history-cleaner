@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2019-2024 BloomReach, Inc. (https://www.bloomreach.com)
+  Copyright 2026 BloomReach, Inc. (https://www.bloomreach.com)
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -20,39 +20,21 @@
   <parent>
     <groupId>org.onehippo.cms7</groupId>
     <artifactId>hippo-cms7-project</artifactId>
-    <version>16.0.0</version>
+    <version>17.1.1</version>
   </parent>
 
   <name>BloomReach Version History Cleaner</name>
   <description>BloomReach Version History Cleaner</description>
   <groupId>com.bloomreach.forge.version-history-cleaner</groupId>
   <artifactId>version-history-cleaner</artifactId>
-  <version>4.0.0</version>
+  <version>5.0.0</version>
   <packaging>pom</packaging>
   <url>https://github.com/bloomreach-forge/version-history-cleaner</url>
 
   <properties>
+    <project.build.javaVersion>21</project.build.javaVersion>
 
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <project.build.javaVersion>17</project.build.javaVersion>
-
-
-
-    <plugin.compiler.version>3.13.0</plugin.compiler.version>
-    <plugin.clean.version>3.4.0</plugin.clean.version>
-    <plugin.deploy.version>3.1.2</plugin.deploy.version>
-    <plugin.install.version>3.1.1</plugin.install.version>
-    <plugin.jar.version>3.4.2</plugin.jar.version>
-    <plugin.javadoc.version>3.6.3</plugin.javadoc.version>
-    <plugin.jxr.version>3.4.0</plugin.jxr.version>
-    <plugin.pmd.version>3.23.0</plugin.pmd.version>
-    <plugin.project-info-reports.version>3.6.2</plugin.project-info-reports.version>
-    <plugin.resources.version>3.3.1</plugin.resources.version>
-    <plugin.site.version>3.12.1</plugin.site.version>
-    <plugin.source.version>3.3.1</plugin.source.version>
-    <plugin.surefire.version>3.3.1</plugin.surefire.version>
-
+    <maven.plugin.jxr.version>3.6.0</maven.plugin.jxr.version>
   </properties>
 
   <licenses>
@@ -94,17 +76,17 @@
   </distributionManagement>
 
   <issueManagement>
-    <url>https://issues.onehippo.com/projects/HIPFORGE</url>
+    <url>https://bloomreach.atlassian.net/browse/FORGE</url>
   </issueManagement>
   
   <repositories>
     <repository>
-      <id>hippo</id>
+      <id>bloomreach</id>
       <name>Hippo Maven 2 Repository</name>
       <url>https://maven.bloomreach.com/maven2/</url>
     </repository>
     <repository>
-      <id>hippo-maven2-forge</id>
+      <id>bloomreach-maven2-forge</id>
       <name>Hippo Maven 2 Forge Repository</name>
       <url>https://maven.bloomreach.com/maven2-forge/</url>
       <snapshots />
@@ -146,20 +128,8 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>${slf4j.version}</version>
+        <version>${slf4j2.version}</version>
         <scope>provided</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-ext</artifactId>
-        <version>${slf4j.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
 
       <dependency>
@@ -179,12 +149,12 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>jcl-over-slf4j</artifactId>
-        <version>${slf4j.version}</version>
+        <version>${slf4j2.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-slf4j-impl</artifactId>
+        <artifactId>log4j-slf4j2-impl</artifactId>
         <version>${log4j2.version}</version>
         <scope>test</scope>
       </dependency>
@@ -211,7 +181,7 @@
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>${junit.version}</version>
+        <version>${junit4.version}</version>
         <scope>test</scope>
       </dependency>
 
@@ -231,133 +201,99 @@
     <module>repository</module>
   </modules>
 
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>${plugin.project-info-reports.version}</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jxr-plugin</artifactId>
-        <version>${plugin.jxr.version}</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-pmd-plugin</artifactId>
-        <version>${plugin.pmd.version}</version>
-        <configuration>
-          <linkXref>true</linkXref>
-          <sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
-          <targetJdk>${project.build.javaVersion}</targetJdk>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${plugin.javadoc.version}</version>
-        <configuration>
-          <encoding>${project.build.sourceEncoding}</encoding>
-          <skip>false</skip>
-          <aggregate>true</aggregate>
-        </configuration>
-        <reportSets>
-          <reportSet>
-            <id>default</id>
-            <reports>
-              <report>javadoc</report>
-              <report>test-javadoc</report>
-            </reports>
-          </reportSet>
-        </reportSets>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>${plugin.surefire.version}</version>
-      </plugin>
-    </plugins>
-  </reporting>
 
   <build>
-
     <defaultGoal>package</defaultGoal>
-
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${plugin.compiler.version}</version>
-        <configuration>
-          <source>${project.build.javaVersion}</source>
-          <target>${project.build.javaVersion}</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-clean-plugin</artifactId>
-        <version>${plugin.clean.version}</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-install-plugin</artifactId>
-        <version>${plugin.install.version}</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <version>${plugin.deploy.version}</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>${plugin.jar.version}</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>${plugin.surefire.version}</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>${plugin.resources.version}</version>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
-        <version>${plugin.site.version}</version>
+        <version>${maven.plugin.site.version}</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>${plugin.source.version}</version>
+        <version>${maven.plugin.source.version}</version>
+        <inherited>true</inherited>
         <executions>
           <execution>
             <id>attach-sources</id>
-            <phase>verify</phase>
             <goals>
-              <goal>jar-no-fork</goal>
+              <goal>jar</goal>
             </goals>
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven.plugin.compiler.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>${maven.plugin.jar.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <forkMode>always</forkMode>
+          <workingDirectory>${project.build.directory}</workingDirectory>
+        </configuration>
+      </plugin>
     </plugins>
-
-
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven.plugin.surefire.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 
+  <reporting>
+    <outputDirectory>target/site</outputDirectory>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${maven.plugin.javadoc.version}</version>
+        <configuration>
+          <source>${project.build.javaVersion}</source>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <version>${maven.plugin.jxr.version}</version>
+        <reportSets>
+          <reportSet>
+            <id>src-xref</id>
+            <reports>
+              <report>jxr</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+        <configuration>
+          <aggregate>true</aggregate>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
+
   <profiles>
-    <!-- Only for generating/publishing GitHub Site Pages into docs/ folder from master branch. -->
     <profile>
+      <!-- For generating/publishing GitHub Site Pages into /docs/ folder on master branch only -->
       <id>github.pages</id>
       <build>
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
-            <version>${plugin.site.version}</version>
+            <version>${maven.plugin.site.version}</version>
             <configuration>
               <outputDirectory>docs</outputDirectory>
             </configuration>
@@ -366,5 +302,7 @@
       </build>
     </profile>
   </profiles>
+
+
 
 </project>

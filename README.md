@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/bloomreach-forge/version-history-cleaner.svg?branch=develop)](https://travis-ci.org/bloomreach-forge/version-history-cleaner)
-
 # BloomReach Version History Cleaner
 
 This project provides features to clean old content revisions in the version history automatically.

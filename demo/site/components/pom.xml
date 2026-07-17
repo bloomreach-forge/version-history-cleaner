@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.bloomreach.forge.version-history-cleaner</groupId>
         <artifactId>version-history-cleaner-demo-site</artifactId>
-        <version>4.0.0</version>
+        <version>5.0.0</version>
     </parent>
     <artifactId>version-history-cleaner-demo-components</artifactId>
     <packaging>jar</packaging>

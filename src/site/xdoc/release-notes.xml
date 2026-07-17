@@ -3,7 +3,7 @@
   "-//Apache Software Foundation//DTD XDOC 1.0//EN"
   "http://maven.apache.org/dtd/xdoc_1_0.dtd">
 <!--
-  Copyright 2019-2024 BloomReach, Inc. (https://www.bloomreach.com)
+  Copyright 2026 BloomReach, Inc. (https://www.bloomreach.com)
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -33,6 +33,10 @@
           </th>
         </tr>
         <tr>
+          <td>5.x</td>
+          <td>17.x</td>
+        </tr>
+        <tr>
           <td>4.x</td>
           <td>16.x</td>
         </tr>
@@ -49,6 +53,17 @@
           <td>13.x</td>
         </tr>
       </table>
+    </section>
+    <section name="Release Notes of 5.x">
+      <subsection name="5.0.0">
+        <p class="smallinfo">Release Date: 17 July 2026</p>
+        <ul>
+          <li>
+            <a href='https://bloomreach.atlassian.net/browse/FORGE-609'>FORGE-609</a>
+            Upgrade to Bloomreach Experience Manager 17, JDK 21.
+          </li>
+        </ul>
+      </subsection>
     </section>
     <section name="Release Notes of 4.x">
       <subsection name="4.0.1">
