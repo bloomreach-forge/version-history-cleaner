@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2019-2024 BloomReach, Inc. (https://www.bloomreach.com)
+  Copyright 2026 BloomReach, Inc. (https://www.bloomreach.com)
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -20,32 +20,21 @@
   <parent>
     <groupId>org.onehippo.cms7</groupId>
     <artifactId>hippo-cms7-project</artifactId>
-    <version>16.0.0</version>
+    <version>17.1.1</version>
   </parent>
 
   <name>BloomReach Version History Cleaner</name>
   <description>BloomReach Version History Cleaner</description>
   <groupId>com.bloomreach.forge.version-history-cleaner</groupId>
   <artifactId>version-history-cleaner</artifactId>
-  <version>4.0.2-SNAPSHOT</version>
+  <version>5.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <url>https://github.com/bloomreach-forge/version-history-cleaner</url>
 
   <properties>
+    <project.build.javaVersion>21</project.build.javaVersion>
 
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <project.build.javaVersion>17</project.build.javaVersion>
-
-
-
-    <maven.plugin.site.version>3.12.1</maven.plugin.site.version>
-    <maven.plugin.source.version>3.3.0</maven.plugin.source.version>
-    <maven.plugin.compiler.version>3.13.0</maven.plugin.compiler.version>
-    <maven.plugin.jar.version>3.4.2</maven.plugin.jar.version>
-    <maven.plugin.surefire.version>3.3.1</maven.plugin.surefire.version>
-    <maven.plugin.jxr.version>3.4.0</maven.plugin.jxr.version>
-
+    <maven.plugin.jxr.version>3.6.0</maven.plugin.jxr.version>
   </properties>
 
   <licenses>
@@ -87,17 +76,17 @@
   </distributionManagement>
 
   <issueManagement>
-    <url>https://issues.onehippo.com/projects/HIPFORGE</url>
+    <url>https://bloomreach.atlassian.net/browse/FORGE</url>
   </issueManagement>
   
   <repositories>
     <repository>
-      <id>hippo</id>
+      <id>bloomreach</id>
       <name>Hippo Maven 2 Repository</name>
       <url>https://maven.bloomreach.com/maven2/</url>
     </repository>
     <repository>
-      <id>hippo-maven2-forge</id>
+      <id>bloomreach-maven2-forge</id>
       <name>Hippo Maven 2 Forge Repository</name>
       <url>https://maven.bloomreach.com/maven2-forge/</url>
       <snapshots />
@@ -139,20 +128,8 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>${slf4j.version}</version>
+        <version>${slf4j2.version}</version>
         <scope>provided</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-ext</artifactId>
-        <version>${slf4j.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
 
       <dependency>
@@ -172,12 +149,12 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>jcl-over-slf4j</artifactId>
-        <version>${slf4j.version}</version>
+        <version>${slf4j2.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-slf4j-impl</artifactId>
+        <artifactId>log4j-slf4j2-impl</artifactId>
         <version>${log4j2.version}</version>
         <scope>test</scope>
       </dependency>
@@ -204,7 +181,7 @@
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>${junit.version}</version>
+        <version>${junit4.version}</version>
         <scope>test</scope>
       </dependency>
 
@@ -285,10 +262,7 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>${maven.plugin.javadoc.version}</version>
         <configuration>
-          <source>1.8</source>
-          <links>
-            <link>http://download.oracle.com/javase/6/docs/api</link>
-          </links>
+          <source>${project.build.javaVersion}</source>
         </configuration>
       </plugin>
       <plugin>
