@@ -20,7 +20,7 @@
   <parent>
     <groupId>com.bloomreach.forge.version-history-cleaner</groupId>
     <artifactId>version-history-cleaner</artifactId>
-    <version>5.0.0-SNAPSHOT</version>
+    <version>5.0.0</version>
 
   </parent>
 
