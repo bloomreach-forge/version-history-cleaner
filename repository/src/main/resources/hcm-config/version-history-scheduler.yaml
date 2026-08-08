@@ -1,0 +1,16 @@
+definitions:
+  config:
+    /hippo:configuration/hippo:modules/version-history-scheduler:
+      jcr:primaryType: hipposys:module
+      hipposys:className: com.bloomreach.forge.versionhistory.core.repository.DocumentHistorySchedulerDaemonModule
+      /hippo:moduleconfig:
+        jcr:primaryType: hipposys:moduleconfig
+        scheduler.enabled: false
+        scheduler.cron.expression: "0 0 2 * * ?"
+        scheduler.batch.size: 100
+        scheduler.attic.retention.days: 30
+        scheduler.revisions.enabled: true
+        scheduler.attic.cleanup.enabled: true
+        default.max.days: -1
+        default.max.revisions: -1
+        default.truncate.ondelete: false

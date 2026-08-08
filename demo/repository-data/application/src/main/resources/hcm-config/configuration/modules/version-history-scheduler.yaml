@@ -1,0 +1,11 @@
+definitions:
+  config:
+    /hippo:configuration/hippo:modules/version-history-scheduler/hippo:moduleconfig:
+      scheduler.enabled: true
+      scheduler.cron.expression: "0 */5 * * * ?"
+      scheduler.batch.size: 50
+      scheduler.attic.retention.days: 7
+      scheduler.revisions.enabled: true
+      scheduler.attic.cleanup.enabled: true
+      default.max.days: 30
+      default.max.revisions: 10
